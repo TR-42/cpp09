@@ -1,5 +1,6 @@
 #include "./PmergeMe.hpp"
 
+#include <algorithm>
 #include <cctype>
 #include <cerrno>
 #include <cstdio>
@@ -113,24 +114,6 @@ const PmergeMe::CONTAINER_TYPE_2 PmergeMe::getContainer2(
 	return this->_container2;
 }
 
-static PmergeMe::CONTAINER_TYPE_1::iterator _swap_range(
-	PmergeMe::CONTAINER_TYPE_1::iterator leftIt,
-	PmergeMe::CONTAINER_TYPE_1::iterator rightIt
-)
-{
-	PmergeMe::CONTAINER_TYPE_1::iterator it = leftIt, it2 = rightIt;
-	while (it != rightIt) {
-		PmergeMe::VALUE_TYPE temp = *it;
-		*it = *it2;
-		*it2 = temp;
-
-		++it;
-		++it2;
-	}
-
-	return it2;
-}
-
 static void _sort1(
 	PmergeMe::CONTAINER_TYPE_1 &arr,
 	const PmergeMe::CONTAINER_TYPE_1 &insertSpanCount,
@@ -148,7 +131,7 @@ static void _sort1(
 		PmergeMe::CONTAINER_TYPE_1::iterator leftMaxIt = it + spanSizeHalf - 1;
 		PmergeMe::CONTAINER_TYPE_1::iterator rightMaxIt = leftMaxIt + spanSizeHalf;
 		if (*rightMaxIt < *leftMaxIt) {
-			it = _swap_range(it, leftMaxIt + 1);
+			it = std::swap_ranges(it, leftMaxIt + 1, leftMaxIt + 1);
 		} else {
 			it = rightMaxIt + 1;
 		}
