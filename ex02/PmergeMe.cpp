@@ -7,6 +7,7 @@
 #include <exception>
 #include <iostream>	 // DEBUG
 #include <iterator>
+#include <set>
 
 PmergeMe::VALUE_TYPE PmergeMe::MAX = std::numeric_limits<PmergeMe::VALUE_TYPE>::max();
 PmergeMe::VALUE_TYPE PmergeMe::MIN = std::numeric_limits<PmergeMe::VALUE_TYPE>::min();
@@ -47,6 +48,9 @@ PmergeMe::PmergeMe(
 		}
 		this->_container1.push_back(value);
 	}
+	std::set<PmergeMe::VALUE_TYPE> uniqueCheck(this->_container1.begin(), this->_container1.end());
+	if (this->_container1.size() != uniqueCheck.size())
+		throw std::invalid_argument("invalid argument (not unique)");
 	this->_container2 = std::list<PmergeMe::VALUE_TYPE>(this->_container1.begin(), this->_container1.end());
 }
 
