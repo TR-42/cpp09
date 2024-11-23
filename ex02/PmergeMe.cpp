@@ -131,7 +131,7 @@ static PmergeMe::CONTAINER_TYPE_1::iterator _swap_range(
 	return it2;
 }
 
-static void _recursive(
+static void _sort1(
 	PmergeMe::CONTAINER_TYPE_1 &arr,
 	const PmergeMe::CONTAINER_TYPE_1 &insertSpanCount,
 	size_t spanSize
@@ -154,7 +154,7 @@ static void _recursive(
 		}
 	}
 
-	_recursive(arr, insertSpanCount, spanSize * 2);
+	_sort1(arr, insertSpanCount, spanSize * 2);
 
 	size_t spanCount = arr.size() / spanSize;
 	bool isAdditionalSpanAvailable = (arr.size() % spanSize) != 0;
@@ -279,7 +279,7 @@ void PmergeMe::sort1(
 )
 {
 	PmergeMe::CONTAINER_TYPE_1 insertSpanCount = generate_insert_span_count<PmergeMe::CONTAINER_TYPE_1>(this->_container1.size());
-	_recursive(this->_container1, insertSpanCount, 2);
+	_sort1(this->_container1, insertSpanCount, 2);
 
 #if defined(DEBUG) || defined(VALIDATE)
 	PmergeMe::VALUE_TYPE lastValue = this->_container1.front();
