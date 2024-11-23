@@ -18,6 +18,8 @@ $(NAME):	$(OBJS)
 
 debug: clean_local_obj
 	make CXXFLAGS='-DDEBUG -g'
+validate: clean_local_obj
+	make CXXFLAGS='-DVALIDATE'
 faddr: clean_local_obj
 	make CXXFLAGS='-g -fsanitize=address'
 fleak: clean_local_obj
