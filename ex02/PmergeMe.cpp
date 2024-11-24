@@ -116,6 +116,17 @@ const PmergeMe::CONTAINER_TYPE_2 PmergeMe::getContainer2(
 	return this->_container2;
 }
 
+static PmergeMe::CONTAINER_TYPE_2::iterator __it_add(
+	PmergeMe::CONTAINER_TYPE_2::iterator it,
+	size_t n
+)
+{
+	for (size_t i = 0; i < n; i++) {
+		++it;
+	}
+	return it;
+}
+
 static PmergeMe::CONTAINER_TYPE_1::iterator _getInsertTo1(
 	PmergeMe::CONTAINER_TYPE_1::iterator rangeTopIt,
 	size_t rangeUnitCount,
@@ -157,6 +168,54 @@ static PmergeMe::CONTAINER_TYPE_1::iterator _getInsertTo1(
 		return _getInsertTo1(rangeCenterUnitEndIt, rangeUnitCount - (rangeUnitCount / 2) - 1, unitSize, targetValue);
 	} else {
 		return _getInsertTo1(rangeTopIt, rangeUnitCount / 2, unitSize, targetValue);
+	}
+}
+
+static PmergeMe::CONTAINER_TYPE_2::iterator _getInsertTo2(
+	PmergeMe::CONTAINER_TYPE_2::iterator rangeTopIt,
+	size_t rangeUnitCount,
+	size_t unitSize,
+	PmergeMe::VALUE_TYPE targetValue
+)
+{
+#ifdef DEBUG
+	std::cout
+		<< std::endl
+		<< "_getInsertTo1(): "
+		<< "rangeUnitCount: "
+		<< rangeUnitCount
+		<< ", rangeTopItValue: "
+		<< *rangeTopIt
+		<< ", unitSize: "
+		<< unitSize
+		<< ", targetValue: "
+		<< targetValue
+		<< std::endl;
+#endif	// DEBUG
+	if (rangeUnitCount == 0)
+		return rangeTopIt;
+	PmergeMe::CONTAINER_TYPE_2::iterator rangeCenterUnitTopIt = __it_add(rangeTopIt, (rangeUnitCount / 2) * unitSize);
+	PmergeMe::CONTAINER_TYPE_2::iterator rangeCenterUnitEndIt = __it_add(rangeCenterUnitTopIt, unitSize);
+	PmergeMe::CONTAINER_TYPE_2::iterator tmpRangeCenterUnitMaxValIt = rangeCenterUnitEndIt;
+	PmergeMe::VALUE_TYPE rangeCenterUnitMaxValue = *(--tmpRangeCenterUnitMaxValIt);
+#ifdef DEBUG
+	PmergeMe::CONTAINER_TYPE_2::iterator rangeEndValIt = __it_add(rangeTopIt, rangeUnitCount * unitSize - 1);
+	std::cout
+		<< "rangeEndIt(Value): "
+		<< *rangeEndValIt
+		<< ", rangeCenterUnitTopIt: "
+		<< *rangeCenterUnitTopIt
+		<< ", rangeCenterUnitMaxValue: "
+		<< rangeCenterUnitMaxValue
+		<< std::endl;
+#endif	// DEBUG
+	if (rangeCenterUnitMaxValue < targetValue) {
+		if (rangeUnitCount == 1)
+			return rangeCenterUnitEndIt;
+		// 前半分 + targetが除かれる
+		return _getInsertTo2(rangeCenterUnitEndIt, rangeUnitCount - (rangeUnitCount / 2) - 1, unitSize, targetValue);
+	} else {
+		return _getInsertTo2(rangeTopIt, rangeUnitCount / 2, unitSize, targetValue);
 	}
 }
 
@@ -259,37 +318,26 @@ static void _sort1(
 				<< targetValue
 				<< std::endl;
 #endif	// DEBUG
-			PmergeMe::CONTAINER_TYPE_1::iterator rangeTopIt = _getInsertTo1(arr.begin(), searchRangeUnitCount, spanSizeHalf, targetValue);
+			PmergeMe::CONTAINER_TYPE_1::iterator insertToIt = _getInsertTo1(arr.begin(), searchRangeUnitCount, spanSizeHalf, targetValue);
 #ifdef DEBUG
 			std::cout
 				<< "insertTo: "
-				<< *rangeTopIt;
-			if (rangeTopIt == arr.begin()) {
+				<< *insertToIt;
+			if (insertToIt == arr.begin()) {
 				std::cout << " (begin)";
 			} else {
-				std::cout << " (after " << *(rangeTopIt - 1) << ")";
+				std::cout << " (after " << *(insertToIt - 1) << ")";
 			}
 			std::cout
 				<< std::endl;
 #endif	// DEBUG
-			arr.insert(rangeTopIt, targetSpan.begin(), targetSpan.end());
+			arr.insert(insertToIt, targetSpan.begin(), targetSpan.end());
 #ifdef DEBUG
 			print_container("arr After :", arr);
 			std::cout << std::endl;
 #endif	// DEBUG
 		}
 	}
-}
-
-static PmergeMe::CONTAINER_TYPE_2::iterator __it_add(
-	PmergeMe::CONTAINER_TYPE_2::iterator it,
-	size_t n
-)
-{
-	for (size_t i = 0; i < n; i++) {
-		++it;
-	}
-	return it;
 }
 
 static void _sort2(
@@ -391,49 +439,21 @@ static void _sort2(
 				<< targetValue
 				<< std::endl;
 #endif	// DEBUG
-			PmergeMe::CONTAINER_TYPE_2::iterator rangeTopIt = arr.begin();
-			PmergeMe::CONTAINER_TYPE_2::iterator rangeEndIt = __it_add(rangeTopIt, searchRangeUnitCount * spanSizeHalf);
-			for (size_t range = searchRangeUnitCount; 0 < range; range /= 2) {
-				PmergeMe::CONTAINER_TYPE_2::iterator it2 = __it_add(rangeTopIt, (range / 2) * spanSizeHalf);
-				PmergeMe::CONTAINER_TYPE_2::iterator it2End = __it_add(it2, spanSizeHalf);
-				PmergeMe::CONTAINER_TYPE_2::iterator it2ValIt = it2End;
-				PmergeMe::VALUE_TYPE it2Value = *(--it2ValIt);
+			PmergeMe::CONTAINER_TYPE_2::iterator insertToIt = _getInsertTo2(arr.begin(), searchRangeUnitCount, spanSizeHalf, targetValue);
 #ifdef DEBUG
-				std::cout
-					<< "range: "
-					<< range
-					<< ", rangeTopItValue: "
-					<< *rangeTopIt
-					<< ", it2Value: "
-					<< it2Value
-					<< std::endl;
-#endif	// DEBUG
-				if (it2Value < targetValue) {
-					rangeTopIt = it2End;
-#ifdef DEBUG
-					std::cout
-						<< "- rangeTopIt updated: ";
-					if (rangeTopIt == rangeEndIt) {
-						std::cout << "end";
-					} else {
-						std::cout << *rangeTopIt;
-					}
-					std::cout << std::endl;
-#endif	// DEBUG
-					if (rangeTopIt == rangeEndIt) {
-						break;
-					}
-				} else {
-					rangeEndIt = it2;
-				}
-			}
-#ifdef DEBUG
+			PmergeMe::CONTAINER_TYPE_2::iterator tmpInsertToItBack = insertToIt;
 			std::cout
 				<< "insertTo: "
-				<< *rangeTopIt
+				<< *insertToIt;
+			if (insertToIt == arr.begin()) {
+				std::cout << " (begin)";
+			} else {
+				std::cout << " (after " << *(--tmpInsertToItBack) << ")";
+			}
+			std::cout
 				<< std::endl;
 #endif	// DEBUG
-			arr.splice(rangeTopIt, targetSpan);
+			arr.splice(insertToIt, targetSpan);
 #ifdef DEBUG
 			print_container("arr After :", arr);
 			std::cout << std::endl;
