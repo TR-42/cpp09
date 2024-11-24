@@ -1,3 +1,5 @@
+#include <cerrno>
+#include <cstring>
 #include <iomanip>
 #include <ios>
 #include <iostream>
@@ -71,14 +73,14 @@ static struct timespec _execSort(
 	struct timespec start, end;
 
 	if (clock_gettime(CLOCK_THREAD_CPUTIME_ID, &start) != 0) {
-		const char *msg = strerror(errno);
+		const char *msg = std::strerror(errno);
 		throw std::runtime_error(msg);
 	}
 
 	(v.*sortMethod)();
 
 	if (clock_gettime(CLOCK_THREAD_CPUTIME_ID, &end) != 0) {
-		const char *msg = strerror(errno);
+		const char *msg = std::strerror(errno);
 		throw std::runtime_error(msg);
 	}
 

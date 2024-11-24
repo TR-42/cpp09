@@ -5,9 +5,11 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <exception>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <set>
 
 PmergeMe::VALUE_TYPE PmergeMe::MAX = std::numeric_limits<PmergeMe::VALUE_TYPE>::max();
@@ -65,7 +67,7 @@ PmergeMe::PmergeMe(
 			throw std::invalid_argument("invalid argument");
 		PmergeMe::VALUE_TYPE value = std::strtoull(argv[i], &endptr, 10);
 		if (errno == ERANGE) {
-			const char *msg = strerror(errno);
+			const char *msg = std::strerror(errno);
 			throw std::out_of_range(msg);
 		} else if (*endptr != '\0') {
 			throw std::invalid_argument("invalid argument");
