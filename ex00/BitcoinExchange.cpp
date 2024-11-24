@@ -148,7 +148,7 @@ BitcoinExchange BitcoinExchange::loadFromFile(
 	const std::string &filePath
 )
 {
-	std::ifstream dbFile(filePath);
+	std::ifstream dbFile(filePath.c_str());
 
 	if (!dbFile)
 		throw std::invalid_argument("Failed to open file");
@@ -273,9 +273,6 @@ BitcoinExchange::PriceHistory BitcoinExchange::PriceHistory::fromCsvLine(
 		throw std::invalid_argument("Invalid price format");
 
 	double price = std::atof(priceStr.c_str());
-	if (std::isnan(price))
-		throw std::invalid_argument("Invalid price format");
-
 	return PriceHistory(date, price);
 }
 #pragma endregion PriceHistory

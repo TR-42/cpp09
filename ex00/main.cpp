@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <list>
@@ -54,12 +55,7 @@ static void processOneLine(
 	}
 
 	double value = std::atof(valueStr.c_str());
-	if (std::isnan(value)) {
-		std::cout
-			<< "Error: Invalid value format: " << valueStr
-			<< std::endl;
-		return;
-	} else if (value <= INPUT_VALUE_MIN || INPUT_VALUE_MAX <= value) {
+	if (value <= INPUT_VALUE_MIN || INPUT_VALUE_MAX <= value) {
 		std::cout
 			<< "Error: Invalid value: " << value
 			<< std::endl;
