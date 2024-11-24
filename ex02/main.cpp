@@ -108,8 +108,16 @@ int main(
 		print_container("Before: ", v.getContainer1());
 		sort1Time = _execSort(v, &PmergeMe::sort1);
 		sort2Time = _execSort(v, &PmergeMe::sort2);
+#if defined(DEBUG) || defined(VALIDATE)
+		std::cout
+			<< std::endl
+			<< "# RESULT ===" << std::endl;
+#endif	// DEBUG || VALIDATE
+
 		print_container("After:  ", v.getContainer1());
+#if defined(DEBUG) || defined(VALIDATE)
 		print_container("After2: ", v.getContainer2());
+#endif	// DEBUG || VALIDATE
 
 		print_result(__CONTAINER_TYPE_1_STR, v.getContainer1().size(), sort1Time);
 		print_result(__CONTAINER_TYPE_2_STR, v.getContainer1().size(), sort2Time);

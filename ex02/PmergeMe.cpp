@@ -139,18 +139,26 @@ static void _sort1(
 		}
 	}
 
-	_sort1(arr, insertSpanCount, spanSize * 2);
-
-	size_t spanCount = arr.size() / spanSize;
-	bool isAdditionalSpanAvailable = (arr.size() % spanSize) != 0;
-	if (isAdditionalSpanAvailable)
-		++spanCount;
-	if (spanCount <= 2)
-		return;
 #ifdef DEBUG
 	std::cout
 		<< "spanSize: "
 		<< spanSize
+		<< std::endl;
+	print_container("before recursive:", arr);
+#endif	// DEBUG
+
+	_sort1(arr, insertSpanCount, spanSize * 2);
+
+	size_t spanCount = arr.size() / spanSize;
+	bool isAdditionalSpanAvailable = spanSizeHalf <= (arr.size() % spanSize);
+	if (isAdditionalSpanAvailable)
+		++spanCount;
+	if (spanCount < 2)
+		return;
+#ifdef DEBUG
+	std::cout
+		<< "spanCount: "
+		<< spanCount
 		<< std::endl;
 	print_container("before erase:", arr);
 #endif	// DEBUG
@@ -189,6 +197,7 @@ static void _sort1(
 			PmergeMe::CONTAINER_TYPE_1 targetSpan = targetSpanSet.back();
 			targetSpanSet.pop_back();
 
+			// そのunitのMAX値
 			PmergeMe::VALUE_TYPE targetValue = targetSpan.back();
 #ifdef DEBUG
 			print_container("arr Before:", arr);
@@ -198,24 +207,52 @@ static void _sort1(
 				<< searchRangeUnitCount
 				<< std::endl;
 			std::cout
+				<< "spanSizeHalf: "
+				<< spanSizeHalf
+				<< std::endl;
+			std::cout
 				<< "targetValue: "
 				<< targetValue
 				<< std::endl;
 #endif	// DEBUG
 			PmergeMe::CONTAINER_TYPE_1::iterator rangeTopIt = arr.begin();
+			PmergeMe::CONTAINER_TYPE_1::iterator rangeEndIt = rangeTopIt + searchRangeUnitCount * spanSizeHalf;
 			for (size_t range = searchRangeUnitCount; 0 < range; range /= 2) {
 				PmergeMe::CONTAINER_TYPE_1::iterator it2 = rangeTopIt + (range / 2) * spanSizeHalf;
-				PmergeMe::VALUE_TYPE it2Value = *(it2 + spanSizeHalf - 1);
+				PmergeMe::CONTAINER_TYPE_1::iterator it2End = it2 + spanSizeHalf;
+				PmergeMe::VALUE_TYPE it2UnitMaxValue = *(it2End - 1);
 #ifdef DEBUG
 				std::cout
 					<< "range: "
 					<< range
+					<< ", rangeTopItValue: "
+					<< *rangeTopIt
+					<< ", rangeBeforeEndItValue: "
+					<< *(rangeEndIt - 1)
 					<< ", it2Value: "
-					<< it2Value
+					<< *it2
+					<< ", it2UnitMaxValue: "
+					<< it2UnitMaxValue
 					<< std::endl;
 #endif	// DEBUG
-				if (it2Value < targetValue) {
-					rangeTopIt = it2 + spanSizeHalf;
+				if (it2UnitMaxValue < targetValue) {
+					rangeTopIt = it2End;
+#ifdef DEBUG
+					std::cout
+						<< "- rangeTopIt updated: ";
+					if (rangeTopIt == rangeEndIt) {
+						std::cout << "end";
+					} else {
+						std::cout << *rangeTopIt;
+						std::cout << "(" << std::distance(arr.begin(), rangeTopIt) << ")";
+					}
+					std::cout << std::endl;
+#endif	// DEBUG
+					if (rangeTopIt == rangeEndIt) {
+						break;
+					}
+				} else {
+					rangeEndIt = it2;
 				}
 			}
 #ifdef DEBUG
@@ -269,18 +306,26 @@ static void _sort2(
 		}
 	}
 
-	_sort2(arr, insertSpanCount, spanSize * 2);
-
-	size_t spanCount = arr.size() / spanSize;
-	bool isAdditionalSpanAvailable = (arr.size() % spanSize) != 0;
-	if (isAdditionalSpanAvailable)
-		++spanCount;
-	if (spanCount <= 2)
-		return;
 #ifdef DEBUG
 	std::cout
 		<< "spanSize: "
 		<< spanSize
+		<< std::endl;
+	print_container("before recursive:", arr);
+#endif	// DEBUG
+
+	_sort2(arr, insertSpanCount, spanSize * 2);
+
+	size_t spanCount = arr.size() / spanSize;
+	bool isAdditionalSpanAvailable = spanSizeHalf <= (arr.size() % spanSize);
+	if (isAdditionalSpanAvailable)
+		++spanCount;
+	if (spanCount < 2)
+		return;
+#ifdef DEBUG
+	std::cout
+		<< "spanCount: "
+		<< spanCount
 		<< std::endl;
 	print_container("before erase:", arr);
 #endif	// DEBUG
@@ -336,22 +381,39 @@ static void _sort2(
 				<< std::endl;
 #endif	// DEBUG
 			PmergeMe::CONTAINER_TYPE_2::iterator rangeTopIt = arr.begin();
+			PmergeMe::CONTAINER_TYPE_2::iterator rangeEndIt = __it_add(rangeTopIt, searchRangeUnitCount * spanSizeHalf);
 			for (size_t range = searchRangeUnitCount; 0 < range; range /= 2) {
 				PmergeMe::CONTAINER_TYPE_2::iterator it2 = __it_add(rangeTopIt, (range / 2) * spanSizeHalf);
 				PmergeMe::CONTAINER_TYPE_2::iterator it2End = __it_add(it2, spanSizeHalf);
 				PmergeMe::CONTAINER_TYPE_2::iterator it2ValIt = it2End;
-				--it2ValIt;
-				PmergeMe::VALUE_TYPE it2Value = *it2ValIt;
+				PmergeMe::VALUE_TYPE it2Value = *(--it2ValIt);
 #ifdef DEBUG
 				std::cout
 					<< "range: "
 					<< range
+					<< ", rangeTopItValue: "
+					<< *rangeTopIt
 					<< ", it2Value: "
 					<< it2Value
 					<< std::endl;
 #endif	// DEBUG
 				if (it2Value < targetValue) {
 					rangeTopIt = it2End;
+#ifdef DEBUG
+					std::cout
+						<< "- rangeTopIt updated: ";
+					if (rangeTopIt == rangeEndIt) {
+						std::cout << "end";
+					} else {
+						std::cout << *rangeTopIt;
+					}
+					std::cout << std::endl;
+#endif	// DEBUG
+					if (rangeTopIt == rangeEndIt) {
+						break;
+					}
+				} else {
+					rangeEndIt = it2;
 				}
 			}
 #ifdef DEBUG
@@ -438,4 +500,25 @@ void PmergeMe::sort2(
 #endif	// DEBUG || VALIDATE
 	PmergeMe::CONTAINER_TYPE_2 insertSpanCount = generate_insert_span_count<PmergeMe::CONTAINER_TYPE_2>(this->_container2.size());
 	_sort2(this->_container2, insertSpanCount, 2);
+#if defined(DEBUG) || defined(VALIDATE)
+	PmergeMe::VALUE_TYPE lastValue = this->_container2.front();
+	for (
+		PmergeMe::CONTAINER_TYPE_2::const_iterator it = this->_container2.begin();
+		it != this->_container2.end();
+		++it
+	) {
+		if (it == this->_container2.begin())
+			continue;
+		if (lastValue > *it) {
+			std::cerr
+				<< "sort2 failed ("
+				<< lastValue
+				<< " > "
+				<< *it
+				<< ")"
+				<< std::endl;
+		}
+		lastValue = *it;
+	}
+#endif	// DEBUG || VALIDATE
 }
