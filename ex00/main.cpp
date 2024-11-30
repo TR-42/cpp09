@@ -41,12 +41,6 @@ static void processOneLine(
 			<< std::endl;
 		return;
 	}
-	if (INPUT_VALUE_STR_MAX_LEN < valueStr.length()) {
-		std::cout
-			<< "Error: too large a number: " << valueStr
-			<< std::endl;
-		return;
-	}
 	if (!isValidPositiveNumStr(valueStr)) {
 		std::cout
 			<< "Error: Invalid value format: " << valueStr
